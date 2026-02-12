@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+    <meta charset="UTF-8">
+    <title>Ikatlong Markahang Pagsusulit sa Wikang Sarili</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #eef2f3; padding: 20px; }
+        .container { max-width: 850px; margin: auto; background: white; padding: 40px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; font-size: 2em; border-bottom: 5px solid #3498db; padding-bottom: 10px; margin-bottom: 30px; }
+        
+        .input-group { margin-bottom: 30px; text-align: center; background: #fdfdfd; padding: 25px; border-radius: 20px; border: 2px dashed #3498db; }
+        input[type="text"] { padding: 15px; width: 80%; border: 3px solid #3498db; border-radius: 15px; font-size: 1.3em; text-align: center; outline: none; }
+
+        .section-header { background: #34495e; color: white; padding: 15px; border-radius: 12px; margin: 40px 0 20px 0; }
+        .section-title { font-size: 1.5em; font-weight: bold; display: block; margin-bottom: 5px; }
+        .panuto { font-style: italic; font-size: 1em; color: #ecf0f1; }
+
+        .question-block { margin-bottom: 35px; padding: 25px; border-radius: 20px; background-color: #ffffff; border: 2px solid #e1e8ed; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .question-text { font-size: 1.4em; font-weight: bold; color: #2c3e50; margin-bottom: 20px; display: block; line-height: 1.4; }
+
+        /* --- GIANT FUN ANSWER BUTTONS --- */
+        .options { display: flex; gap: 20px; flex-wrap: wrap; }
+        .options label { 
+            flex: 1; min-width: 180px; background: #fff; border: 4px solid #3498db; padding: 25px; 
+            border-radius: 20px; cursor: pointer; text-align: center; font-size: 1.4em; font-weight: bold; 
+            color: #3498db; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; justify-content: center;
+        }
+        .options input[type="radio"] { display: none; }
+
+        .options label:hover { background-color: #3498db; color: white; transform: scale(1.02); }
+        .options input[type="radio"]:checked + label { 
+            background: linear-gradient(135deg, #3498db, #2980b9); color: white; border-color: #2c3e50; 
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.5); transform: scale(1.05);
+        }
+
+        .mega-button { 
+            width: 100%; padding: 30px; background: linear-gradient(45deg, #FF512F, #DD2476); 
+            color: white; border: none; border-radius: 60px; font-size: 2.2em; font-weight: 900; 
+            cursor: pointer; margin-top: 50px; box-shadow: 0 10px 30px rgba(221, 36, 118, 0.4);
+            transition: 0.3s; text-transform: uppercase;
+        }
+        .mega-button:hover { transform: scale(1.03); filter: brightness(1.1); }
+
+        /* Result Page Styles */
+        #result-page { display: none; margin-top: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 25px; background: white; font-size: 0.9em; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #2c3e50; color: white; }
+        .correct { color: #27ae60; font-weight: bold; }
+        .wrong { color: #e74c3c; font-weight: bold; }
+        .signature-section { margin-top: 60px; display: flex; justify-content: space-between; }
+        .sig-box { border-top: 2px solid black; width: 250px; text-align: center; padding-top: 10px; font-weight: bold; }
+
+        .action-btns { display: flex; gap: 15px; margin-top: 40px; }
+        .btn-print { background: #27ae60; flex: 2; padding: 25px; color: white; border: none; border-radius: 15px; cursor: pointer; font-size: 1.3em; font-weight: bold; }
+        .btn-retry { background: #7f8c8d; flex: 1; padding: 25px; color: white; border: none; border-radius: 15px; cursor: pointer; font-size: 1.3em; font-weight: bold; }
+
+        @media print {
+            .mega-button, .input-group, #quiz-form, .action-btns, .section-header { display: none !important; }
+            #result-page { display: block !important; }
+            .container { box-shadow: none; border: none; width: 100%; padding: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="quiz-ui">
+        <h1>Ikatlong Markahang Pagsusulit <br> sa Wikang Sarili</h1>
+        
+        <div class="input-group">
+            <label style="font-size: 1.2em; font-weight: bold; color: #3498db;">PANGALAN NG MAG-AARAL:</label><br><br>
+            <input type="text" id="student-name" placeholder="Isulat ang iyong pangalan dito...">
+        </div>
+
+        <div id="quiz-form"></div>
+        <button class="mega-button" onclick="generateResult()">🎉 TAPOS NA AKO! 🚀</button>
+    </div>
+
+    <div id="result-page">
+        <h1>📊 RESULTA NG PAGSUSULIT</h1>
+        <hr>
+        <div style="font-size: 1.3em; margin: 20px 0; background: #f9f9f9; padding: 20px; border-radius: 15px;">
+            <p><strong>Pangalan:</strong> <span id="display-name" style="color: #2980b9;"></span></p>
+            <p><strong>Kabuuang Iskor:</strong> <span id="display-score" style="color: #e67e22; font-size: 1.5em;"></span> / 25</p>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Tanong</th>
+                    <th>Sagot Mo</th>
+                    <th>Tama</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="result-table-body"></tbody>
+        </table>
+
+        <div class="signature-section">
+            <div class="sig-box">Teacher's Signature</div>
+            <div class="sig-box">Date Recorded</div>
+        </div>
+
+        <div class="action-btns">
+            <button class="btn-print" onclick="window.print()">🖨️ I-print ang Resulta</button>
+            <button class="btn-retry" onclick="location.reload()">🔄 Ulitin ang Quiz</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const myQuestions = [
+    // --- BAHAGI NG AKLAT (1-10) ---
+    { cat: "Bahagi ng Aklat", panuto: "Piliin ang tamang bahagi ng aklat na inilalarawan sa bawat bilang.", q: "Ito ang takip ng aklat na may pamagat at larawan.", a: "Pabalat", opts: ["Pabalat", "Glosari"] },
+    { cat: "Bahagi ng Aklat", panuto: "Piliin ang tamang bahagi ng aklat na inilalarawan sa bawat bilang.", q: "Dito nakatala ang mga paksa at ang pahina nito.", a: "Talaan ng Nilalaman", opts: ["Talaan ng Nilalaman", "Indeks"] },
+    { cat: "Bahagi ng Aklat", panuto: "Piliin ang tamang bahagi ng aklat na inilalarawan sa bawat bilang.", q: "Dito nakasulat ang kahulugan ng mahihirap na salita.", a: "Glosari", opts: ["Glosari", "Pabalat"] },
+    { cat: "Bahagi ng Aklat", panuto: "Piliin ang tamang bahagi ng aklat na inilalarawan sa bawat bilang.", q: "Pahina kung saan makikita ang pamagat, may-akda, at naglimbag.", a: "Pahina ng Pamagat", opts: ["Pahina ng Pamagat", "Paunang Salita"] },
+    { cat: "Bahagi ng Aklat", panuto: "Piliin ang tamang bahagi ng aklat na inilalarawan sa bawat bilang.", q: "Dito makikita ang taon kung kailan inilimbag ang aklat.", a: "Pahina ng Karapatang Sipi", opts: ["Pahina ng Karapatang Sipi", "Bibliyograpiya"] },
+    { cat: "Bahagi ng Aklat", panuto: "Piliin ang tamang bahagi ng aklat na inilalarawan sa bawat bilang.", q: "Ito ang pinakamahalagang bahagi ng aklat dahil dito mababasa ang kwento.", a: "Katawan ng Aklat", opts: ["Katawan ng Aklat", "Indeks"] },
+    { cat: "Bahagi ng Aklat", panuto: "Piliin ang tamang bahagi ng aklat na inilalarawan sa bawat bilang.", q: "Dito mababasa ang mensahe ng may-akda sa mga mambabasa.", a: "Paunang Salita", opts: ["Paunang Salita", "Pabalat"] },
+    { cat: "Bahagi ng Aklat", panuto: "Piliin ang tamang bahagi ng aklat na inilalarawan sa bawat bilang.", q: "Listahan ng mga aklat na ginamit bilang sanggunian.", a: "Bibliyograpiya", opts: ["Bibliyograpiya", "Glosari"] },
+    { cat: "Bahagi ng Aklat", panuto: "Piliin ang tamang bahagi ng aklat na inilalarawan sa bawat bilang.", q: "Alpabetikong talaan ng mga paksa sa dulo ng aklat.", a: "Indeks", opts: ["Indeks", "Talaan ng Nilalaman"] },
+    { cat: "Bahagi ng Aklat", panuto: "Piliin ang tamang bahagi ng aklat na inilalarawan sa bawat bilang.", q: "Alin ang ginagamit upang hindi madumihan o mapunit ang mga pahina?", a: "Pabalat", opts: ["Pabalat", "Glosari"] },
+
+    // --- PANDIWA (11-18) ---
+    { cat: "Pandiwa (Salitang Kilos)", panuto: "Kilalanin ang mga salitang nagpapakita ng kilos o galaw.", q: "Ano ang tawag sa mga salitang nagpapahayag ng kilos?", a: "Pandiwa", opts: ["Pandiwa", "Pangngalan"] },
+    { cat: "Pandiwa (Salitang Kilos)", panuto: "Kilalanin ang mga salitang nagpapakita ng kilos o galaw.", q: "Alin sa mga sumusunod ang isang pandiwa?", a: "Sumulat", opts: ["Sumulat", "Lapis"] },
+    { cat: "Pandiwa (Salitang Kilos)", panuto: "Kilalanin ang mga salitang nagpapakita ng kilos o galaw.", q: "Ano ang pandiwa sa: 'Ang bata ay naglalaro sa parke'?", a: "naglalaro", opts: ["naglalaro", "parke"] },
+    { cat: "Pandiwa (Salitang Kilos)", panuto: "Kilalanin ang mga salitang nagpapakita ng kilos o galaw.", q: "Si Ana ay ___ ng masarap na ulam kahapon.", a: "nagluto", opts: ["nagluto", "mabait"] },
+    { cat: "Pandiwa (Salitang Kilos)", panuto: "Kilalanin ang mga salitang nagpapakita ng kilos o galaw.", q: "Alin ang salitang kilos sa pangungusap: 'Mabilis tumakbo ang aso'?", a: "tumakbo", opts: ["Mabilis", "tumakbo"] },
+    { cat: "Pandiwa (Salitang Kilos)", panuto: "Kilalanin ang mga salitang nagpapakita ng kilos o galaw.", q: "Ano ang ginagawa ng ibon sa himpapawid?", a: "Lumilipad", opts: ["Lumilipad", "Matigas"] },
+    { cat: "Pandiwa (Salitang Kilos)", panuto: "Kilalanin ang mga salitang nagpapakita ng kilos o galaw.", q: "Alin ang pandiwa: 'Ang guro ay nagtuturo sa klase'?", a: "nagtuturo", opts: ["nagtuturo", "guro"] },
+    { cat: "Pandiwa (Salitang Kilos)", panuto: "Kilalanin ang mga salitang nagpapakita ng kilos o galaw.", q: "Pumili ng salitang kilos.", a: "Umiyak", opts: ["Umiyak", "Mainit"] },
+
+    // --- PANLAPI AT SALITANG-UGAT (19-25) ---
+    { cat: "Panlapíng Makadiwa", panuto: "Suriin ang salitang-ugat at panlaping ginamit sa mga pandiwa.", q: "Ano ang salitang-ugat ng 'bumasa'?", a: "basa", opts: ["basa", "buma"] },
+    { cat: "Panlapíng Makadiwa", panuto: "Suriin ang salitang-ugat at panlaping ginamit sa mga pandiwa.", q: "Ano ang panlaping ginamit sa 'maglaro'?", a: "mag", opts: ["mag", "laro"] },
+    { cat: "Panlapíng Makadiwa", panuto: "Suriin ang salitang-ugat at panlaping ginamit sa mga pandiwa.", q: "Sa salitang 'tumakbo', alin ang panlapi?", a: "um", opts: ["um", "takbo"] },
+    { cat: "Panlapíng Makadiwa", panuto: "Suriin ang salitang-ugat at panlaping ginamit sa mga pandiwa.", q: "Ano ang salitang-ugat ng 'naglaba'?", a: "laba", opts: ["laba", "nag"] },
+    { cat: "Panlapíng Makadiwa", panuto: "Suriin ang salitang-ugat at panlaping ginamit sa mga pandiwa.", q: "Salitang walang dagdag na panlapi.", a: "Salitang-ugat", opts: ["Salitang-ugat", "Panlapi"] },
+    { cat: "Panlapíng Makadiwa", panuto: "Suriin ang salitang-ugat at panlaping ginamit sa mga pandiwa.", q: "Ano ang panlapi sa salitang 'hiniram'?", a: "in", opts: ["in", "hiram"] },
+    { cat: "Panlapíng Makadiwa", panuto: "Suriin ang salitang-ugat at panlaping ginamit sa mga pandiwa.", q: "Ano ang salitang-ugat ng 'tinapon'?", a: "tapon", opts: ["tapon", "tina"] }
+];
+
+function loadQuiz() {
+    const form = document.getElementById('quiz-form');
+    let currentCat = "";
+    
+    myQuestions.forEach((item, i) => {
+        let catHeader = "";
+        if(item.cat !== currentCat) {
+            currentCat = item.cat;
+            catHeader = `
+                <div class="section-header">
+                    <span class="section-title">${currentCat}</span>
+                    <span class="panuto">Panuto: ${item.panuto}</span>
+                </div>`;
+        }
+
+        let qDiv = `
+            ${catHeader}
+            <div class="question-block">
+                <span class="question-text">${i+1}. ${item.q}</span>
+                <div class="options">
+                    <input type="radio" name="q${i}" id="q${i}_o0" value="${item.opts[0]}">
+                    <label for="q${i}_o0">${item.opts[0]}</label>
+                    <input type="radio" name="q${i}" id="q${i}_o1" value="${item.opts[1]}">
+                    <label for="q${i}_o1">${item.opts[1]}</label>
+                </div>
+            </div>`;
+        form.innerHTML += qDiv;
+    });
+}
+
+function generateResult() {
+    const name = document.getElementById('student-name').value;
+    if (!name) { alert("Pakisulat ang iyong pangalan! 😊"); return; }
+
+    let score = 0;
+    const tableBody = document.getElementById('result-table-body');
+    tableBody.innerHTML = "";
+
+    myQuestions.forEach((item, i) => {
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        const userAns = selected ? selected.value : "Walang Sagot";
+        const isCorrect = userAns === item.a;
+        if (isCorrect) score++;
+
+        tableBody.innerHTML += `<tr>
+            <td>${i+1}</td>
+            <td>${item.q}</td>
+            <td>${userAns}</td>
+            <td>${item.a}</td>
+            <td class="${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? '✔ Tama' : '✘ Mali'}</td>
+        </tr>`;
+    });
+
+    document.getElementById('display-name').innerText = name;
+    document.getElementById('display-score').innerText = score;
+    document.getElementById('quiz-ui').style.display = "none";
+    document.getElementById('result-page').style.display = "block";
+    window.scrollTo(0, 0);
+}
+
+loadQuiz();
+</script>
+
+</body>
+</html>
